@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bakery POS System</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4 max-w-7xl">
+      <!-- Header -->
+      <div class="bg-amber-600 text-white p-4 rounded-t-lg shadow-md mb-4">
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold">Sweet Treats Bakery POS</h1>
+          <div class="text-sm">
+            <span id="current-date"></span> |
+            <span id="current-time"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex border-b mb-4 no-print">
+        <button
+          onclick="showTab('order')"
+          id="order-tab"
+          class="tab-btn active-tab"
+        >
+          Order Input
+        </button>
+        <button onclick="showTab('products')" id="products-tab" class="tab-btn">
+          Product Manager
+        </button>
+        <button onclick="showTab('customer')" id="customer-tab" class="tab-btn">
+          Customer Data
+        </button>
+        <button onclick="showTab('sales')" id="sales-tab" class="tab-btn">
+          Sales Records
+        </button>
+        <button onclick="showTab('vendors')" id="vendors-tab" class="tab-btn">
+          Vendors
+        </button>
+        <button onclick="showTab('expenses')" id="expenses-tab" class="tab-btn">
+          Expenses
+        </button>
+      </div>
+
+      <!-- Order Input Tab -->
+      <div
+        id="order-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Products Section -->
+          <div class="md:col-span-2">
+            <h2 class="text-xl font-bold mb-4">Products</h2>
+            <div
+              id="products-grid"
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6"
+            >
+              <!-- Product items will be dynamically loaded here -->
+              <div class="text-center text-gray-500 p-8">
+                Loading products...
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary Section -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+            <div class="mb-4">
+              <label
+                for="customer-select"
+                class="block text-sm font-medium mb-1"
+                >Customer</label
+              >
+              <select id="customer-select" class="w-full p-2 border rounded">
+                <option value="">New Customer</option>
+              </select>
+            </div>
+
+            <div
+              id="order-items"
+              class="max-h-64 overflow-y-auto mb-4 border-b pb-4"
+            >
+              <p class="text-gray-500 text-center py-4">No items in order</p>
+            </div>
+
+            <div class="pt-3">
+              <div class="flex justify-between font-medium mb-1">
+                <span>Subtotal:</span>
+                <span id="subtotal">RM 0.00</span>
+              </div>
+              <div class="flex justify-between font-medium mb-1">
+                <span>Tax (6%):</span>
+                <span id="tax">RM 0.00</span>
+              </div>
+              <div
+                class="flex justify-between font-bold text-lg text-amber-700"
+              >
+                <span>Total:</span>
+                <span id="total">RM 0.00</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-4">
+              <button
+                onclick="clearOrder()"
+                class="bg-gray-300 text-gray-800 py-2 rounded-lg transition-colors hover:bg-gray-400"
+              >
+                Clear
+              </button>
+              <button
+                onclick="processOrder()"
+                class="bg-amber-600 text-white py-2 rounded-lg transition-colors hover:bg-amber-700"
+              >
+                Process Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Manager Tab -->
+      <div
+        id="products-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow hidden"
+      >
+        <h2 class="text-xl font-bold mb-4">Product Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Add/Edit Product Form -->
+          <div class="md:col-span-1 bg-gray-50 p-6 rounded-lg">
+            <h3 id="product-form-title" class="font-medium mb-3">
+              Add New Product
+            </h3>
+            <form id="product-form">
+              <input type="hidden" id="product-id" />
+              <div class="mb-3">
+                <label for="product-name" class="block text-sm font-medium mb-1"
+                  >Product Name</label
+                >
+                <input
+                  type="text"
+                  id="product-name"
+                  class="w-full p-2 border rounded-lg"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="product-price"
+                  class="block text-sm font-medium mb-1"
+                  >Price (RM)</label
+                >
+                <input
+                  type="number"
+                  step="0.01"
+                  id="product-price"
+                  class="w-full p-2 border rounded-lg"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="product-image"
+                  class="block text-sm font-medium mb-1"
+                  >Image URL</label
+                >
+                <input
+                  type="text"
+                  id="product-image"
+                  class="w-full p-2 border rounded-lg"
+                />
+                <small class="text-gray-500"
+                  >Optional: URL to an image for the product.</small
+                >
+              </div>
+              <div class="flex gap-2">
+                <button
+                  type="submit"
+                  class="bg-amber-600 text-white w-full py-2 rounded-lg transition-colors hover:bg-amber-700"
+                >
+                  Save Product
+                </button>
+                <button
+                  type="button"
+                  onclick="clearProductForm()"
+                  class="bg-gray-300 text-gray-800 py-2 rounded-lg transition-colors hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- Product List -->
+          <div class="md:col-span-2">
+            <h3 class="font-medium mb-3">Existing Products</h3>
+            <div
+              id="product-list-container"
+              class="overflow-x-auto bg-white p-4 rounded-lg shadow"
+            >
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th class="p-2 border text-left">Image</th>
+                    <th class="p-2 border text-left">Name</th>
+                    <th class="p-2 border text-left">Price</th>
+                    <th class="p-2 border text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="product-list">
+                  <!-- Product data will appear here -->
+                  <tr>
+                    <td colspan="4" class="p-4 text-center text-gray-500">
+                      No products found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Data Tab -->
+      <div
+        id="customer-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow hidden"
+      >
+        <h2 class="text-xl font-bold mb-4">Customer Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Add New Customer -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h3 class="font-medium mb-3">Add New Customer</h3>
+            <div class="mb-3">
+              <label for="cust-name" class="block text-sm font-medium mb-1"
+                >Name</label
+              >
+              <input
+                type="text"
+                id="cust-name"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="cust-phone" class="block text-sm font-medium mb-1"
+                >Phone</label
+              >
+              <input
+                type="text"
+                id="cust-phone"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="cust-email" class="block text-sm font-medium mb-1"
+                >Email</label
+              >
+              <input
+                type="email"
+                id="cust-email"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <button
+              onclick="addCustomer()"
+              class="bg-amber-600 text-white w-full py-2 rounded-lg transition-colors hover:bg-amber-700"
+            >
+              Save Customer
+            </button>
+          </div>
+          <!-- Customer List -->
+          <div class="md:col-span-2">
+            <h3 class="font-medium mb-3">Customer List</h3>
+            <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th class="p-2 border text-left">ID</th>
+                    <th class="p-2 border text-left">Name</th>
+                    <th class="p-2 border text-left">Phone</th>
+                    <th class="p-2 border text-left">Email</th>
+                    <th class="p-2 border text-left">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="customer-list">
+                  <!-- Customer data will appear here -->
+                  <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">
+                      No customers found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Records Tab -->
+      <div
+        id="sales-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow hidden"
+      >
+        <h2 class="text-xl font-bold mb-4">Sales Records</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="md:col-span-2">
+            <div class="flex">
+              <input
+                type="text"
+                id="search-order"
+                placeholder="Search by Order ID or Customer"
+                class="w-full p-2 border rounded-l-lg"
+              />
+              <button
+                onclick="searchOrders()"
+                class="bg-amber-600 text-white px-4 rounded-r-lg"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2">
+            <button
+              onclick="exportSales()"
+              class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors hover:bg-gray-400"
+            >
+              <i class="fas fa-file-export"></i> Export
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2 border text-left">Order ID</th>
+                <th class="p-2 border text-left">Date</th>
+                <th class="p-2 border text-left">Customer</th>
+                <th class="p-2 border text-left">Total</th>
+                <th class="p-2 border text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody id="sales-list">
+              <!-- Sales data will appear here -->
+              <tr>
+                <td colspan="5" class="p-4 text-center text-gray-500">
+                  No sales records found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Vendor/Consignment Tab -->
+      <div
+        id="vendors-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow hidden"
+      >
+        <h2 class="text-xl font-bold mb-4">Vendor & Consignment Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Add/Edit Vendor Form -->
+          <div class="md:col-span-1 bg-gray-50 p-6 rounded-lg">
+            <h3 id="vendor-form-title" class="font-medium mb-3">
+              Add New Vendor
+            </h3>
+            <form id="vendor-form">
+              <input type="hidden" id="vendor-id" />
+              <div class="mb-3">
+                <label for="vendor-name" class="block text-sm font-medium mb-1"
+                  >Vendor Name</label
+                >
+                <input
+                  type="text"
+                  id="vendor-name"
+                  class="w-full p-2 border rounded-lg"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label
+                  for="vendor-contact"
+                  class="block text-sm font-medium mb-1"
+                  >Contact Person/Info</label
+                >
+                <input
+                  type="text"
+                  id="vendor-contact"
+                  class="w-full p-2 border rounded-lg"
+                />
+              </div>
+              <div class="mb-3">
+                <label for="vendor-phone" class="block text-sm font-medium mb-1"
+                  >Phone</label
+                >
+                <input
+                  type="text"
+                  id="vendor-phone"
+                  class="w-full p-2 border rounded-lg"
+                />
+              </div>
+              <div class="flex gap-2">
+                <button
+                  type="submit"
+                  class="bg-amber-600 text-white w-full py-2 rounded-lg transition-colors hover:bg-amber-700"
+                >
+                  Save Vendor
+                </button>
+                <button
+                  type="button"
+                  onclick="clearVendorForm()"
+                  class="bg-gray-300 text-gray-800 py-2 rounded-lg transition-colors hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+          <!-- Vendor List & Actions -->
+          <div class="md:col-span-2">
+            <h3 class="font-medium mb-3">Existing Vendors</h3>
+            <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th class="p-2 border text-left">Vendor Name</th>
+                    <th class="p-2 border text-left">Contact</th>
+                    <th class="p-2 border text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="vendor-list">
+                  <!-- Vendor data will appear here -->
+                  <tr>
+                    <td colspan="3" class="p-4 text-center text-gray-500">
+                      No vendors found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-bold mt-8 mb-4">Consignment Orders</h3>
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <div class="mb-4">
+            <label
+              for="consignment-vendor-select"
+              class="block text-sm font-medium mb-1"
+              >Select Vendor</label
+            >
+            <select
+              id="consignment-vendor-select"
+              class="w-full p-2 border rounded-lg"
+            >
+              <option value="">Select a Vendor</option>
+            </select>
+          </div>
+          <button
+            onclick="showCreateOrderModal()"
+            class="bg-amber-600 text-white py-2 px-4 rounded-lg transition-colors hover:bg-amber-700"
+          >
+            <i class="fas fa-plus"></i> Create Delivery Order
+          </button>
+        </div>
+      </div>
+
+      <!-- Expenses Tab -->
+      <div
+        id="expenses-tab-content"
+        class="tab-content bg-white p-6 rounded-lg shadow hidden"
+      >
+        <h2 class="text-xl font-bold mb-4">Expenses Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Add New Expense -->
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h3 class="font-medium mb-3">Record New Expense</h3>
+            <div class="mb-3">
+              <label for="expense-date" class="block text-sm font-medium mb-1"
+                >Date</label
+              >
+              <input
+                type="date"
+                id="expense-date"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div class="mb-3">
+              <label
+                for="expense-category"
+                class="block text-sm font-medium mb-1"
+                >Category</label
+              >
+              <select
+                id="expense-category"
+                class="w-full p-2 border rounded-lg"
+              >
+                <option value="ingredients">Ingredients</option>
+                <option value="supplies">Supplies</option>
+                <option value="equipment">Equipment</option>
+                <option value="utilities">Utilities</option>
+                <option value="rent">Rent</option>
+                <option value="salaries">Salaries</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="expense-desc" class="block text-sm font-medium mb-1"
+                >Description</label
+              >
+              <input
+                type="text"
+                id="expense-desc"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="expense-amount" class="block text-sm font-medium mb-1"
+                >Amount (RM)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                id="expense-amount"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <button
+              onclick="addExpense()"
+              class="bg-amber-600 text-white w-full py-2 rounded-lg transition-colors hover:bg-amber-700"
+            >
+              Record Expense
+            </button>
+          </div>
+          <!-- Expenses List -->
+          <div class="md:col-span-2">
+            <h3 class="font-medium mb-3">Recent Expenses</h3>
+            <div class="mb-4">
+              <label for="expense-from" class="block text-sm font-medium mb-1"
+                >Filter by Date</label
+              >
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  id="expense-from"
+                  class="p-2 border rounded-lg"
+                />
+                <input
+                  type="date"
+                  id="expense-to"
+                  class="p-2 border rounded-lg"
+                />
+                <button
+                  onclick="filterExpenses()"
+                  class="bg-amber-600 text-white px-4 rounded-lg"
+                >
+                  <i class="fas fa-filter"></i>
+                </button>
+              </div>
+            </div>
+            <div class="overflow-x-auto bg-white p-4 rounded-lg shadow">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-100">
+                    <th class="p-2 border text-left">Date</th>
+                    <th class="p-2 border text-left">Category</th>
+                    <th class="p-2 border text-left">Description</th>
+                    <th class="p-2 border text-left">Amount</th>
+                    <th class="p-2 border text-left">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="expenses-list">
+                  <!-- Expenses data will appear here -->
+                  <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">
+                      No expenses recorded
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Item Modal -->
+      <div id="custom-item-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Add Custom Item</h3>
+            <button
+              onclick="closeModal('custom-item-modal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label
+                for="custom-item-name"
+                class="block text-sm font-medium mb-1"
+                >Item Name</label
+              >
+              <input
+                type="text"
+                id="custom-item-name"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div>
+              <label
+                for="custom-item-desc"
+                class="block text-sm font-medium mb-1"
+                >Description</label
+              >
+              <textarea
+                id="custom-item-desc"
+                class="w-full p-2 border rounded-lg"
+              ></textarea>
+            </div>
+            <div>
+              <label
+                for="custom-item-price"
+                class="block text-sm font-medium mb-1"
+                >Price (RM)</label
+              >
+              <input
+                type="number"
+                step="0.01"
+                id="custom-item-price"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <button
+              onclick="addCustomItem()"
+              class="bg-amber-600 text-white w-full py-2 rounded-lg transition-colors hover:bg-amber-700"
+            >
+              Add to Order
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receipt Modal -->
+      <div id="receipt-modal" class="modal-overlay hidden">
+        <div class="modal-content max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Order Receipt</h3>
+            <button
+              onclick="closeModal('receipt-modal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="receipt-content" class="receipt-paper">
+            <!-- Receipt content will be inserted here -->
+          </div>
+          <div class="mt-4 flex justify-end gap-2 no-print">
+            <button
+              onclick="window.print()"
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            >
+              <i class="fas fa-print"></i> Print
+            </button>
+            <button
+              onclick="closeModal('receipt-modal')"
+              class="bg-gray-500 text-white px-4 py-2 rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Consignment Order Modal -->
+      <div id="create-order-modal" class="modal-overlay hidden">
+        <div class="modal-content w-[600px]">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Create Delivery Order</h3>
+            <button
+              onclick="closeModal('create-order-modal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label
+                for="delivery-vendor"
+                class="block text-sm font-medium mb-1"
+                >Vendor</label
+              >
+              <input
+                type="text"
+                id="delivery-vendor"
+                class="w-full p-2 border rounded-lg"
+                disabled
+              />
+            </div>
+            <div>
+              <label for="delivery-date" class="block text-sm font-medium mb-1"
+                >Delivery Date</label
+              >
+              <input
+                type="date"
+                id="delivery-date"
+                class="w-full p-2 border rounded-lg"
+              />
+            </div>
+            <div
+              id="delivery-items-container"
+              class="border p-4 rounded-lg bg-gray-100 max-h-60 overflow-y-auto"
+            >
+              <div class="flex justify-between font-bold mb-2">
+                <span>Item</span>
+                <span>Quantity</span>
+              </div>
+              <div id="delivery-items-list">
+                <p class="text-gray-500 text-center">No products available</p>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button
+                onclick="generateDeliveryOrder()"
+                class="bg-amber-600 text-white py-2 px-4 rounded-lg transition-colors hover:bg-amber-700"
+              >
+                Generate Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Form Modal -->
+      <div id="order-form-modal" class="modal-overlay hidden">
+        <div class="modal-content max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Delivery Order</h3>
+            <button
+              onclick="closeModal('order-form-modal')"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="order-form-content" class="receipt-paper">
+            <!-- Delivery order content will be inserted here -->
+          </div>
+          <div class="mt-4 flex justify-end gap-2 no-print">
+            <button
+              onclick="printOrderForm()"
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg"
+            >
+              <i class="fas fa-print"></i> Print
+            </button>
+            <button
+              onclick="closeModal('order-form-modal')"
+              class="bg-gray-500 text-white px-4 py-2 rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
